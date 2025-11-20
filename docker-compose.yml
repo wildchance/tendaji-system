@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  trading-engine:
+    build: .
+    ports:
+      - "8000:8000"
+    container_name: trading-engine
+    restart: always
