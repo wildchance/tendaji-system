@@ -1,10 +1,19 @@
 from fastapi import APIRouter
-from models.trade import Trade
-from services.trade_executor import execute_trade
+from pydantic import BaseModel
+from datetime import datetime
 
 router = APIRouter()
 
-@router.post("/")
-def place_trade(trade: Trade):
-    result = execute_trade(trade)
-    return {"status": "Trade executed", "result": result}
+class Trade(BaseModel):
+    symbol: str
+    action: str  # BUY or SELL
+    price: float
+    quantity: float
+
+@router.post("/trade")
+def log_trade(trade: Trade):
+    return {
+        "status": "Trade recorded",
+        "trade": trade,
+        "recorded_at": datetime.utcnow()
+    }
