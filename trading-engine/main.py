@@ -1,15 +1,15 @@
 from fastapi import FastAPI
-from .routes import signals, trade, webhook
-from .db.database import Base, engine
-
-Base.metadata.create_all(bind=engine)
+from routes.signals import router as signals_router
+from routes.trade import router as trade_router
+from routes.webhook import router as webhook_router
 
 app = FastAPI()
 
-app.include_router(signals.router)
-app.include_router(trade.router)
-app.include_router(webhook.router)
-
 @app.get("/")
 def home():
-    return {"message": "Trading Engine Live!"}
+    return {"message": "🚀 FastAPI Trading Engine Running on Railway!"}
+
+# Include Routes
+app.include_router(signals_router)
+app.include_router(trade_router)
+app.include_router(webhook_router)
