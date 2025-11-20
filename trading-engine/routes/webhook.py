@@ -3,6 +3,9 @@ from fastapi import APIRouter, Request
 router = APIRouter()
 
 @router.post("/webhook")
-async def webhook_listener(request: Request):
+async def receive_webhook(request: Request):
     data = await request.json()
-    return {"received": data}
+    return {
+        "status": "Webhook received",
+        "data": data
+    }
