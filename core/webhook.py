@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
-from models.trade import TradeLog
-from models.signal import SignalLog
+from models.trade_model import TradeLog
+from models.signal_model import SignalLog
 
 router = APIRouter()
 
