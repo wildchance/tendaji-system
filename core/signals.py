@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database.db import get_db
-from database.models import SignalLog
+from models.signal import SignalLog
 
 router = APIRouter()
 
