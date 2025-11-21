@@ -1,14 +1,12 @@
-import requests
-import os
+import httpx
+from decouple import config
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
+TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = config("TELEGRAM_CHAT_ID")
 
-def send_telegram_message(chat_id: str, message: str):
-    url = f"{BASE_URL}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message
-    }
-    response = requests.post(url, json=payload)
-    return response.json()
+async def send_telegram_message(message: str):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+
+    async with httpx.AsyncClient() as client:
+        await client.post(url, json=payload)
