@@ -3,3 +3,6 @@ uvicorn
 requests
 python-telegram-bot
 python-decouple
+sqlalchemy
+asyncpg
+psycopg2-binary
