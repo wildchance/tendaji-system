@@ -1,33 +1,17 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
 from models.signal import SignalLog
+from services.telegram_service import send_telegram_message
 
 router = APIRouter()
 
-class TradeSignal(BaseModel):
-    symbol: str
-    action: str
-    strength: int
-
 @router.post("/signal")
-async def receive_signal(signal: TradeSignal, db: Session = Depends(get_db)):
-    new_signal = SignalLog(
-        symbol=signal.symbol,
-        action=signal.action,
-        strength=signal.strength
-    )
+async def receive_signal(symbol: str, action: str, strength: int, db: AsyncSession = Depends(get_db)):
+    new_signal = SignalLog(symbol=symbol, action=action, strength=strength)
     db.add(new_signal)
-    db.commit()
-    db.refresh(new_signal)
+    await db.commit()
+    await db.refresh(new_signal)
 
-    return {
-        "status": "saved",
-        "data": {
-            "id": new_signal.id,
-            "symbol": new_signal.symbol,
-            "action": new_signal.action,
-            "strength": new_signal.strength
-        }
-    }
+    message = f"📢 Signal: {symbol} | {action} | Strength: {strength}"
+    await send_telegram_message(message)
