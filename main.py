@@ -3,6 +3,7 @@ from core.signals import router as signals_router
 from core.trade import router as trade_router
 from core.webhook import router as webhook_router
 from database.db import init_db
+from routes.telegram_routes import router as telegram_router
 
 app = FastAPI()
 
@@ -21,3 +22,8 @@ def trading_signal(payload: dict):
 @app.get("/telegram/send-alert")
 def send_alert():
     return {"status": "alert sent"}
+    
+app.include_router(signals_router)
+app.include_router(trade_router)
+app.include_router(webhook_router)
+app.include_router(telegram_router)
