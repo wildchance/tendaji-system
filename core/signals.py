@@ -1,29 +1,33 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
+from database.db import get_db
+from database.models import SignalLog
 
-# ---- Database Setup ----
-DATABASE_URL = "postgresql://user:password@db:5432/trading"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-
-# ---- FastAPI Router ----
 router = APIRouter()
 
-# ---- Request Model ----
 class TradeSignal(BaseModel):
     symbol: str
-    action: str  # BUY or SELL
+    action: str
     strength: int
 
-# ---- API Endpoint ----
 @router.post("/signal")
-async def receive_signal(signal: TradeSignal):
+async def receive_signal(signal: TradeSignal, db: Session = Depends(get_db)):
+    new_signal = SignalLog(
+        symbol=signal.symbol,
+        action=signal.action,
+        strength=signal.strength
+    )
+    db.add(new_signal)
+    db.commit()
+    db.refresh(new_signal)
+
     return {
-        "status": "received",
-        "symbol": signal.symbol,
-        "action": signal.action,
-        "strength": signal.strength
+        "status": "saved",
+        "data": {
+            "id": new_signal.id,
+            "symbol": new_signal.symbol,
+            "action": new_signal.action,
+            "strength": new_signal.strength
+        }
     }
