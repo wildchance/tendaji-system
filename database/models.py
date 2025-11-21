@@ -1,7 +1,15 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, JSON
 from sqlalchemy.sql import func
-from .db import Base
+from database.db import Base
 
+class SignalLog(Base):
+    __tablename__ = "signals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    symbol = Column(String, nullable=False)
+    action = Column(String, nullable=False)
+    strength = Column(Integer, nullable=False)
+    
 class TradeLog(Base):
     __tablename__ = "trade_logs"
 
