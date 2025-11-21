@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
-from models.trade import TradeLog
+from models.trade_model import TradeLog
 from services.telegram_service import send_telegram_message
 
 router = APIRouter()
