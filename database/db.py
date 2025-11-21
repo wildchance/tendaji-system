@@ -19,7 +19,7 @@ async def get_db():
         yield session
 
 async def init_db():
-    from models.trade_model import TradeLog
-    from models.signal_model import SignalLog
+    from models.trade import TradeLog
+    from models.signal import SignalLog
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
