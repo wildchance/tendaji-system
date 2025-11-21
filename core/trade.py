@@ -13,7 +13,6 @@ async def receive_trade(pair: str, action: str, lot_size: float, price: float, d
     await db.commit()
     await db.refresh(new_trade)
 
-    # Send Telegram alert
     message = f"💹 Trade Executed: {pair} {action} | Lot: {lot_size} | Price: {price}"
     await send_telegram_message(message)
 
