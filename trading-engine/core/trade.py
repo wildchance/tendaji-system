@@ -1,5 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from database.db import get_db
+from database.models import TradeLog
 
 router = APIRouter()
 
@@ -10,9 +13,9 @@ class Trade(BaseModel):
     price: float
 
 @router.post("/trade")
-def create_trade(trade: Trade):
-    return {
-        "status": "success",
-        "message": "Trade logged",
-        "data": trade
-    }
+async def create_trade(trade: Trade, db: AsyncSession = Depends(get_db)):
+    trade_data = TradeLog(**trade.dict())
+    db.add(trade_data)
+    await db.commit()
+    await db.refresh(trade_data)
+    return {"status": "success", "data": trade_data}
