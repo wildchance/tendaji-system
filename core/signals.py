@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
-from models.signal import SignalLog
+from models.signal_model import SignalLog
 from services.telegram_service import send_telegram_message
 
 router = APIRouter()
