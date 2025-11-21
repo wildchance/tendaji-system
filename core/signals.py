@@ -15,3 +15,5 @@ async def receive_signal(symbol: str, action: str, strength: int, db: AsyncSessi
 
     message = f"📢 Signal: {symbol} | {action} | Strength: {strength}"
     await send_telegram_message(message)
+
+    return {"status": "saved", "signal_id": new_signal.id}
