@@ -5,7 +5,8 @@ from decouple import config
 DATABASE_URL = config("DATABASE_URL").replace("postgresql://", "postgresql+asyncpg://")
 
 engine = create_async_engine(DATABASE_URL, echo=True)
-AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False)
 
 Base = declarative_base()
 
