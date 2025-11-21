@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
-from database.models import TradeLog
+from models.trade import TradeLog
 
 router = APIRouter()
 
