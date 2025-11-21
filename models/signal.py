@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String
+from database.db import Base
 
-class Signal(BaseModel):
-    symbol: str
-    action: str  # buy or sell
-    entry: float
-    tp: float
-    sl: float
+class SignalLog(Base):
+    __tablename__ = "signal_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    symbol = Column(String, nullable=False)
+    action = Column(String, nullable=False)
+    strength = Column(Integer, nullable=False)
