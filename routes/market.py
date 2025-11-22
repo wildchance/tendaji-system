@@ -12,9 +12,6 @@ router = APIRouter(prefix="")
 
 @router.get("/price/{pair}")
 async def price(pair: str):
-    """
-    Returns JSON: {"pair": "EURUSD", "price": 1.0812}
-    """
     p = pair.strip().upper()
     price = await get_forex_price(p)
     if price is None:
@@ -23,7 +20,6 @@ async def price(pair: str):
 
 @router.get("/dashboard")
 async def dashboard_html():
-   
     return {"info": "open /static/dashboard/index.html in your browser"}
 
 @router.get("/api/signals")
