@@ -8,6 +8,7 @@ from routes.telegram_routes import router as telegram_router
 from routes.admin import router as admin_router
 
 from routes.market import router as market_router
+app.include_router(market_router)
 
 app = FastAPI(title="Tendaji Trading Engine")
 
