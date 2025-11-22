@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy.sql import func
 from database.db import Base
 
 class TradeLog(Base):
@@ -9,3 +10,4 @@ class TradeLog(Base):
     action = Column(String, nullable=False)
     lot_size = Column(Float, nullable=False)
     price = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
