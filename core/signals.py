@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
 from models.signal_model import SignalLog
@@ -6,14 +7,19 @@ from services.telegram_service import send_telegram_message
 
 router = APIRouter()
 
-@router.post("/signal")
-async def receive_signal(symbol: str, action: str, strength: int, db: AsyncSession = Depends(get_db)):
-    new_signal = SignalLog(symbol=symbol, action=action, strength=strength)
-    db.add(new_signal)
-    await db.commit()
-    await db.refresh(new_signal)
+class SignalIn(BaseModel):
+    symbol: str
+    action: str
+    strength: int
 
-    message = f"📢 Signal: {symbol} | {action} | Strength: {strength}"
+@router.post("/signal")
+async def receive_signal(payload: SignalIn, db: AsyncSession = Depends(get_db)):
+    new = SignalLog(symbol=payload.symbol, action=payload.action, strength=payload.strength)
+    db.add(new)
+    await db.commit()
+    await db.refresh(new)
+
+    message = f"📢 Signal: {payload.symbol} | {payload.action} | Strength: {payload.strength}"
     await send_telegram_message(message)
 
-    return {"status": "saved", "signal_id": new_signal.id}
+    return {"status": "saved", "id": new.id}
