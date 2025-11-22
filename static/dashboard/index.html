@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tendaji Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Inter, Arial, sans-serif; margin: 20px; background:#f7fafc; color:#111827; }
+    .card { background:white; border-radius:8px; padding:14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom:12px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:8px; border-bottom:1px solid #eef2f7; }
+    th { font-weight:600; }
+    .small { font-size:12px; color:#6b7280; }
+    #controls { display:flex; gap:8px; margin-bottom:14px; }
+    .btn { padding:8px 12px; border-radius:6px; background:#111827; color:white; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2>Tendaji — Signals Dashboard</h2>
+  <div id="controls" class="card">
+    <div>
+      <label>Price pair:</label>
+      <input id="pairInput" value="EURUSD" style="padding:6px;border-radius:6px;border:1px solid #e6eaf0" />
+      <button id="getPriceBtn" class="btn">Get Price</button>
+    </div>
+    <div style="margin-left:auto">
+      <span class="small">Auto-refresh every 5s</span>
+    </div>
+  </div>
+
+  <div id="priceCard" class="card">
+    <strong>Price</strong>
+    <div id="priceVal" style="margin-top:8px">—</div>
+  </div>
+
+  <div class="card">
+    <strong>Recent Signals</strong>
+    <table id="signalsTable">
+      <thead><tr><th>ID</th><th>Symbol</th><th>Action</th><th>Strength</th><th>Created</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <strong>Recent Trades</strong>
+    <table id="tradesTable">
+      <thead><tr><th>ID</th><th>Pair</th><th>Action</th><th>Lot</th><th>Price</th><th>Created</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+const API_BASE = location.origin; // works when served from Railway domain
+async function fetchJSON(path) {
+  const r = await fetch(API_BASE + path);
+  if (!r.ok) return null;
+  return await r.json();
+}
+
+async function loadSignals() {
+  const data = await fetchJSON('/api/signals');
+  const tbody = document.querySelector('#signalsTable tbody');
+  tbody.innerHTML = '';
+  if (!data) return;
+  for (const s of data) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.id}</td><td>${s.symbol}</td><td>${s.action}</td><td>${s.strength}</td><td class="small">${s.created_at}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+async function loadTrades() {
+  const data = await fetchJSON('/api/trades');
+  const tbody = document.querySelector('#tradesTable tbody');
+  tbody.innerHTML = '';
+  if (!data) return;
+  for (const t of data) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${t.id}</td><td>${t.pair}</td><td>${t.action}</td><td>${t.lot_size}</td><td>${t.price}</td><td class="small">${t.created_at}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+async function updatePrice(pair) {
+  const el = document.getElementById('priceVal');
+  el.textContent = 'Loading...';
+  try {
+    const r = await fetch(`${API_BASE}/price/${encodeURIComponent(pair)}`);
+    if (!r.ok) {
+      el.textContent = 'symbol not found';
+      return;
+    }
+    const data = await r.json();
+    el.textContent = `${data.pair}: ${data.price}`;
+  } catch (e) {
+    el.textContent = 'error';
+  }
+}
+
+document.getElementById('getPriceBtn').addEventListener('click', () => {
+  const p = document.getElementById('pairInput').value.trim() || 'EURUSD';
+  updatePrice(p);
+});
+
+async function tick() {
+  await loadSignals();
+  await loadTrades();
+  const p = document.getElementById('pairInput').value.trim() || 'EURUSD';
+  await updatePrice(p);
+}
+
+tick();
+setInterval(tick, 5000);
+</script>
+</body>
+</html>
