@@ -4,6 +4,7 @@ from core.trade import router as trade_router
 from core.webhook import router as webhook_router
 from database.db import init_db
 from routes.telegram_routes import router as telegram_router
+from routes.admin import router as admin_router
 
 app = FastAPI()
 
