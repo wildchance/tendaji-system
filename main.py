@@ -30,3 +30,7 @@ app.include_router(webhook_router)
 app.include_router(telegram_router)
 app.include_router(admin_router)
 app.include_router(market_router)
+
+@app.get("/")
+def home():
+    return {"message": "Tendaji system API is live"}
