@@ -20,7 +20,7 @@ async def receive_signal(payload: SignalIn, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(new)
 
-    message = f"📢 Signal: {payload.symbol} | {payload.action} | Strength: {payload.strength}"
+message = f"📢 WildChance Signal: {payload.symbol} | {payload.action} | Strength: {payload.strength}"
     await send_telegram_message(message)
 
     return {"status": "saved", "id": new.id}
