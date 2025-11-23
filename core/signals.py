@@ -20,7 +20,13 @@ async def receive_signal(payload: SignalIn, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(new)
 
-message = f"📢 WildChance Signal: {payload.symbol} | {payload.action} | Strength: {payload.strength}"
+    message = f"📢 WildChance Signal: {payload.symbol} | {payload.action} | Strength: {payload.strength}"
+
     await send_telegram_message(message)
+
+    try:
+        await send_whatsapp_message(message)
+    except Exception:
+        print("WhatsApp service not enabled or encountered an error.")
 
     return {"status": "saved", "id": new.id}
