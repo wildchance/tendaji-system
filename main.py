@@ -6,7 +6,9 @@ from database.db import init_db
 from routes.telegram_routes import router as telegram_router
 from routes.admin import router as admin_router
 from routes.market import router as market_router
-from routes.alert_webhook import router as alert_webhook  # Keep this
+from routes.alert_webhook import router as alert_webhook 
+from routes.export_routes import router as export_router
+app.include_router(export_router)
 
 app = FastAPI()
 
