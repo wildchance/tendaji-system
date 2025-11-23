@@ -6,9 +6,9 @@ from database.db import init_db
 from routes.telegram_routes import router as telegram_router
 from routes.admin import router as admin_router
 from routes.market import router as market_router
-from routes.alert_webhook import router as alert_webhook
+from routes.alert_webhook import router as alert_webhook  # Keep this
 
-app = FastAPI() 
+app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
@@ -18,10 +18,10 @@ async def startup_event():
 def home():
     return {"message": "Tendaji system API is live"}
 
-app.include_router(alert_webhook, prefix="/webhook")
-app.include_router(signals_router, prefix="/api")
-app.include_router(trade_router, prefix="/api")
+app.include_router(signals_router)
+app.include_router(trade_router)
 app.include_router(webhook_router)
-app.include_router(telegram_router, prefix="/telegram")
-app.include_router(admin_router, prefix="/admin")
-app.include_router(market_router, prefix="/price")
+app.include_router(telegram_router)
+app.include_router(admin_router)
+app.include_router(market_router)
+app.include_router(alert_webhook)
