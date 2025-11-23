@@ -1,39 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tendaji Live Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background: #f4f4f4; }
-  </style>
+    <title>Tendaji Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #333; color: white; }
+        .section-title { font-size: 22px; margin: 20px 0 10px; }
+    </style>
 </head>
 <body>
-  <h2>📊 Recent Signals</h2>
-  <table id="signals"></table>
 
-  <h2>💹 Recent Trades</h2>
-  <table id="trades"></table>
+<h1>📊 Tendaji Signals & Trade Logs</h1>
+
+<div>
+    <h2 class="section-title">🟢 Live Signals</h2>
+    <table id="signalsTable">
+        <thead>
+            <tr>
+                <th>ID</th><th>Symbol</th><th>Action</th><th>Strength</th><th>Time</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div>
+    <h2 class="section-title">💹 Trade Executions</h2>
+    <table id="tradesTable">
+        <thead>
+            <tr>
+                <th>ID</th><th>Pair</th><th>Action</th><th>Lot Size</th><th>Price</th><th>Time</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <script>
-async function loadData() {
-  let signals = await fetch("/api/signals").then(r => r.json());
-  let trades = await fetch("/api/trades").then(r => r.json());
-
-  document.getElementById('signals').innerHTML = "<tr><th>ID</th><th>Symbol</th><th>Action</th><th>Strength</th><th>Time</th></tr>" +
-    signals.map(r => `<tr>
-      <td>${r.id}</td><td>${r.symbol}</td><td>${r.action}</td>
-      <td>${r.strength}</td><td>${r.created_at}</td></tr>`).join('');
-
-  document.getElementById('trades').innerHTML = "<tr><th>ID</th><th>Pair</th><th>Action</th><th>Lot</th><th>Price</th><th>Time</th></tr>" +
-    trades.map(r => `<tr>
-      <td>${r.id}</td><td>${r.pair}</td><td>${r.action}</td>
-      <td>${r.lot_size}</td><td>${r.price}</td><td>${r.created_at}</td></tr>`).join('');
+async function loadSignals() {
+    const res = await fetch("/api/signals");
+    const data = await res.json();
+    const tbody = document.getElementById("signalsTable").querySelector("tbody");
+    tbody.innerHTML = data.map(r => `
+        <tr>
+            <td>${r.id}</td>
+            <td>${r.symbol}</td>
+            <td>${r.action}</td>
+            <td>${r.strength}</td>
+            <td>${r.created_at}</td>
+        </tr>
+    `).join("");
 }
 
-setInterval(loadData, 5000);
-loadData();
+async function loadTrades() {
+    const res = await fetch("/api/trades");
+    const data = await res.json();
+    const tbody = document.getElementById("tradesTable").querySelector("tbody");
+    tbody.innerHTML = data.map(r => `
+        <tr>
+            <td>${r.id}</td>
+            <td>${r.pair}</td>
+            <td>${r.action}</td>
+            <td>${r.lot_size}</td>
+            <td>${r.price}</td>
+            <td>${r.created_at}</td>
+        </tr>
+    `).join("");
+}
+
+loadSignals();
+loadTrades();
+
+// auto-refresh every 10 seconds
+setInterval(() => {
+    loadSignals();
+    loadTrades();
+}, 10000);
 </script>
+
 </body>
 </html>
