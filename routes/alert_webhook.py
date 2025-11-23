@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.db import get_db
 from models.signal_model import SignalLog
 from telegram import send_telegram_message 
+from utils.send_telegram import send_telegram_message 
 
 router = APIRouter()
 WEBHOOK_SECRET = config("WEBHOOK_SECRET")
