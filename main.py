@@ -17,7 +17,7 @@ async def startup_event():
 
 @app.get("/")
 def home():
-    return {"message": "Tendaji system API is live"}
+    return {"message": "WildChance Trading System API is live"}
 
 app.include_router(signals_router)
 app.include_router(trade_router)
