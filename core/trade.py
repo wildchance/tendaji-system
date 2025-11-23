@@ -21,6 +21,6 @@ async def receive_trade(payload: TradeIn, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(new)
 
-    message = f"💹 Trade Executed: {payload.pair} {payload.action} | Lot: {payload.lot_size} | Price: {payload.price}"
+message = f"💹 WildChance Trade Executed: {payload.pair} {payload.action} | Lot: {payload.lot_size} | Price: {payload.price}"
     await send_telegram_message(message)
     return {"status": "saved", "id": new.id}
