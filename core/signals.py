@@ -6,8 +6,6 @@ from models.signal_model import SignalLog
 from services.telegram_service import send_telegram_message
 from services.whatsapp_service import send_whatsapp_message
 
-send_whatsapp_message(message)
-
 router = APIRouter()
 
 class SignalIn(BaseModel):
