@@ -1,20 +1,27 @@
-import requests
-import os
+import httpx
+from decouple import config
 
-API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+API_KEY = config("TWELVEDATA_API_KEY", default=None)
 
-def get_forex_price(symbol="EURUSD"):
-    url = "https://www.alphavantage.co/query"
-    params = {
-        "function": "CURRENCY_EXCHANGE_RATE",
-        "from_currency": symbol[:3],
-        "to_currency": symbol[3:],
-        "apikey": API_KEY
-    }
+async def get_forex_price(symbol: str):
+    symbol = symbol.upper()
+
+    if API_KEY:
+        url = f"https://api.twelvedata.com/price?symbol={symbol}&apikey={API_KEY}"
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                r = await client.get(url)
+                data = r.json()
+                if "price" in data:
+                    return float(data["price"])
+        except:
+            pass
+
+    url = f"https://api.frankfurter.app/latest?from={symbol[:3]}&to={symbol[3:]}"
     try:
-        response = requests.get(url, params=params)
-        data = response.json()
-        price = data["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
-        return float(price)
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(url)
+            data = r.json()
+            return float(data["rates"][symbol[3:]])
     except:
         return None
