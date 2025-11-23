@@ -1,24 +1,26 @@
-from fastapi import APIRouter, Response
-import csv
-from io import StringIO
-from database.db import get_db
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from database.db import get_db
 from sqlalchemy import select
 from models.signal_model import SignalLog
+from models.trade_model import TradeLog
 
-router = APIRouter()
+router = APIRouter(prefix="/export")
 
-@router.get("/export/signals.csv")
+@router.get("/signals")
 async def export_signals(db: AsyncSession = Depends(get_db)):
-    buffer = StringIO()
-    writer = csv.writer(buffer)
-    writer.writerow(["ID", "Symbol", "Action", "Strength", "Time"])
-
     q = await db.execute(select(SignalLog))
     rows = q.scalars().all()
-    for r in rows:
-        writer.writerow([r.id, r.symbol, r.action, r.strength, r.created_at])
-    
-    response = Response(content=buffer.getvalue(), media_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=signals.csv"
-    return response
+    return [
+        {"id": r.id, "symbol": r.symbol, "action": r.action, "strength": r.strength, "created_at": str(r.created_at)}
+        for r in rows
+    ]
+
+@router.get("/trades")
+async def export_trades(db: AsyncSession = Depends(get_db)):
+    q = await db.execute(select(TradeLog))
+    rows = q.scalars().all()
+    return [
+        {"id": r.id, "pair": r.pair, "action": r.action, "lot_size": r.lot_size, "price": r.price, "created_at": str(r.created_at)}
+        for r in rows
+    ]
