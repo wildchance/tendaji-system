@@ -27,11 +27,14 @@ async def receive_trade(payload: TradeIn, db: AsyncSession = Depends(get_db)):
     await db.refresh(new_trade)
 
     message = (
-        f"💹 wildchance Trade Executed:\n"
-        f"Pair: {payload.pair}\n"
-        f"Action: {payload.action}\n"
-        f"Lot Size: {payload.lot_size}\n"
-        f"Price: {payload.price}"
+        f"🚀 WildChance Trade Alert\n"
+        f"-----------------------------\n"
+        f"💹 Pair: {payload.pair}\n"
+        f"📈 Action: {payload.action}\n"
+        f"📦 Lot Size: {payload.lot_size}\n"
+        f"💰 Entry Price: {payload.price}\n"
+        f"-----------------------------\n"
+        f"🔔 Powered by WildChance AI"
     )
 
     await send_telegram_message(message)
