@@ -1,20 +1,34 @@
-from telegram import Update
-from telegram.ext import ContextTypes
-import requests
+from fastapi import APIRouter, FastAPI
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+from handlers.start_handler import start
+from handlers.history_handler import handle_history
+import asyncio
 import os
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://wildchance-system-production.up.railway.app")
+router = APIRouter()
 
-async def handle_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    response = requests.get(f"{API_BASE_URL}/history/trades")
-    data = response.json()
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-    if not data:
-        await update.message.reply_text("📭 No trade history found yet.")
-        return
+application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    message = "📜 *Recent Trades:*\n\n"
-    for trade in data[-5:]:
-        message += f"• {trade['pair']} | {trade['action']} | Lot {trade['lot_size']}\n"
-    
-    await update.message.reply_text(message)
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("history", handle_history))
+
+async def echo(update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message:
+        await update.message.reply_text(f"You said: {update.message.text}")
+
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+
+
+async def start_telegram_bot():
+    print("🚀 Telegram bot is starting...")
+    await application.initialize()
+    await application.start()
+    await application.run_polling()
+
+
+def register_bot(app: FastAPI):
+    @app.on_event("startup")
+    async def startup_event():
+        asyncio.create_task(start_telegram_bot())
