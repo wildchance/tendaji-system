@@ -14,14 +14,11 @@ router = APIRouter()
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-# Build Telegram Bot Application
 application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# Register Command Handlers
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("history", handle_history))
 
-# Example text echo handler
 async def echo(update, context):
     await update.message.reply_text(f"You said: {update.message.text}")
 
