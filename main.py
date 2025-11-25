@@ -4,7 +4,10 @@ from core.signals import router as signals_router
 from core.trade import router as trade_router
 from core.webhook import router as webhook_router
 from database.db import init_db
+
 from routes.telegram_routes import router as telegram_router
+from routes.telegram_routes import register_bot
+
 from routes.admin import router as admin_router
 from routes.market import router as market_router
 from routes.alert_webhook import router as alert_webhook
@@ -13,16 +16,18 @@ from routes.history_commands import router as history_cmd_router
 
 app = FastAPI()
 
-from routes.telegram_routes import register_bot
 register_bot(app)
+
 
 @app.on_event("startup")
 async def startup_event():
     await init_db()
 
+
 @app.get("/")
 def home():
     return {"message": "Wildchance API is live 🚀"}
+
 
 app.include_router(alert_webhook)
 app.include_router(signals_router)
