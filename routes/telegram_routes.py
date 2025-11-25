@@ -15,7 +15,9 @@ application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("history", handle_history))
 
 async def echo(update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"You said: {update.message.text}")
+    message = update.effective_message
+    if message:
+        await message.reply_text(f"You said: {message.text}")
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
