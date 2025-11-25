@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from core.signals import router as signals_router
 from core.trade import router as trade_router
 from core.webhook import router as webhook_router
@@ -31,5 +32,4 @@ app.include_router(telegram_router)
 app.include_router(admin_router)
 app.include_router(market_router)
 app.include_router(history_router)
-
 app.include_router(history_cmd_router)
