@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 from core.signals import router as signals_router
 from core.trade import router as trade_router
@@ -7,27 +9,45 @@ from database.db import init_db
 
 from routes.telegram_routes import router as telegram_router
 from routes.telegram_routes import register_bot
-
 from routes.admin import router as admin_router
 from routes.market import router as market_router
 from routes.alert_webhook import router as alert_webhook
 from routes.history import router as history_router
 from routes.history_commands import router as history_cmd_router
 
-app = FastAPI()
+app = FastAPI(
+    title="Wildchance Trading Bot API",
+    description="Trading Bot Dashboard and API",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 register_bot(app)
 
-
 @app.on_event("startup")
 async def startup_event():
+    """Initialize database on startup"""
     await init_db()
 
-
 @app.get("/")
-def home():
-    return {"message": "Wildchance API is live 🚀"}
+async def home():
+    return {
+        "message": "Wildchance API is live 🚀", 
+        "status": "Server running", 
+        "bot": "active"
+    }
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
 
 app.include_router(alert_webhook)
 app.include_router(signals_router)
@@ -38,3 +58,11 @@ app.include_router(admin_router)
 app.include_router(market_router)
 app.include_router(history_router)
 app.include_router(history_cmd_router)
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=8000,
+        reload=True  # Enable auto-reload in development
+    )
