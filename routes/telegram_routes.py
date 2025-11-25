@@ -1,14 +1,34 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from routes.history_commands import handle_history
+from fastapi import APIRouter
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
+from handlers.start_handler import start
+from handlers.history_handler import handle_history
+import os
 
-def setup_telegram_bot():
-    updater = Updater(token=BOT_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+router = APIRouter()
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-    dispatcher.add_handler(CommandHandler("history", handle_history))
+# Build Telegram Bot Application
+application = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    updater.start_polling()
-    return updater
+# Register Command Handlers
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("history", handle_history))
+
+# Example text echo handler
+async def echo(update, context):
+    await update.message.reply_text(f"You said: {update.message.text}")
+
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+
+
+@router.on_event("startup")
+async def start_telegram_bot():
+    print("🚀 Telegram bot is running...")
+    application.run_polling()
