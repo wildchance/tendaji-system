@@ -1,11 +1,5 @@
 from fastapi import APIRouter, FastAPI
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    ContextTypes,
-    filters
-)
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 from handlers.start_handler import start
 from handlers.history_handler import handle_history
 import asyncio
@@ -21,7 +15,8 @@ application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("history", handle_history))
 
 async def echo(update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"You said: {update.message.text}")
+    if update.message:
+        await update.message.reply_text(f"You said: {update.message.text}")
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
@@ -30,8 +25,7 @@ async def start_telegram_bot():
     print("🚀 Telegram bot is starting...")
     await application.initialize()
     await application.start()
-    print("🤖 Telegram bot is running and listening...")
-    await application.idle()   # <-- This keeps it running to receive messages
+    await application.run_polling()
 
 
 def register_bot(app: FastAPI):
