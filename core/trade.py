@@ -15,20 +15,25 @@ class TradeIn(BaseModel):
 
 @router.post("/trade")
 async def receive_trade(payload: TradeIn, db: AsyncSession = Depends(get_db)):
-    new = TradeLog(
+    new_trade = TradeLog(
         pair=payload.pair,
         action=payload.action,
         lot_size=payload.lot_size,
         price=payload.price
     )
-    db.add(new)
+
+    db.add(new_trade)
     await db.commit()
-    await db.refresh(new)
+    await db.refresh(new_trade)
 
     message = (
-        f"💹 Wildchance Trade Executed: {payload.pair} {payload.action} | "
-        f"Lot: {payload.lot_size} | Price: {payload.price}"
+        f"💹 wildchance Trade Executed:\n"
+        f"Pair: {payload.pair}\n"
+        f"Action: {payload.action}\n"
+        f"Lot Size: {payload.lot_size}\n"
+        f"Price: {payload.price}"
     )
+
     await send_telegram_message(message)
 
-    return {"status": "saved", "id": new.id}
+    return {"status": "saved", "id": new_trade.id}
