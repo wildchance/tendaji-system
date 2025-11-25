@@ -1,23 +1,14 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-import requests
-from decouple import config
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from routes.history_commands import handle_history
 
-router = APIRouter()
+def setup_telegram_bot():
+    updater = Updater(token=BOT_TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
 
-BOT_TOKEN = config("TELEGRAM_BOT_TOKEN")
-BASE_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("help", help_command))
 
-class Alert(BaseModel):
-    chat_id: str
-    message: str
+    dispatcher.add_handler(CommandHandler("history", handle_history))
 
-@router.post("/telegram/send-message")
-def send_message(alert: Alert):
-    url = f"{BASE_URL}/sendMessage"
-    payload = {
-        "chat_id": alert.chat_id,
-        "text": alert.message
-    }
-    response = requests.post(url, json=payload)
-    return response.json()
+    updater.start_polling()
+    return updater
