@@ -25,7 +25,13 @@ async def echo(update, context):
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
 
-@router.on_event("startup")
-async def start_telegram_bot():
+from fastapi import FastAPI
+
+def start_telegram_bot():
     print("🚀 Telegram bot is running...")
     application.run_polling()
+
+def register_bot(app: FastAPI):
+    @app.on_event("startup")
+    async def startup_event():
+        start_telegram_bot()
