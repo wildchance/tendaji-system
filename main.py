@@ -8,6 +8,8 @@ from routes.admin import router as admin_router
 from routes.market import router as market_router
 from routes.alert_webhook import router as alert_webhook
 from routes.export_routes import router as export_router 
+from routes.history import router as history_router
+app.include_router(history_router)
 
 app = FastAPI()
 
