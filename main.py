@@ -7,9 +7,7 @@ from routes.telegram_routes import router as telegram_router
 from routes.admin import router as admin_router
 from routes.market import router as market_router
 from routes.alert_webhook import router as alert_webhook
-from routes.export_routes import router as export_router 
 from routes.history import router as history_router
-app.include_router(history_router)
 
 app = FastAPI()
 
@@ -19,13 +17,13 @@ async def startup_event():
 
 @app.get("/")
 def home():
-    return {"message": "WildChance Trading System API is live"}
+    return {"message": "Wildchance API is live 🚀"}
 
+app.include_router(alert_webhook)
 app.include_router(signals_router)
 app.include_router(trade_router)
 app.include_router(webhook_router)
 app.include_router(telegram_router)
 app.include_router(admin_router)
 app.include_router(market_router)
-app.include_router(alert_webhook)
-app.include_router(export_router) 
+app.include_router(history_router)
