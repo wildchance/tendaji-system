@@ -12,6 +12,9 @@ from routes.history_commands import router as history_cmd_router
 
 app = FastAPI()
 
+from routes.telegram_routes import register_bot
+register_bot(app)
+
 @app.on_event("startup")
 async def startup_event():
     await init_db()
