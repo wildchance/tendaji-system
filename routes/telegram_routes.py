@@ -24,7 +24,9 @@ async def start_telegram_bot():
     print("🚀 Telegram bot is starting...")
     await application.initialize()
     await application.start()
-    print("🤖 Telegram bot is running!")
+    await application.updater.start_polling()
+    print("🤖 Telegram bot is now running!")
+
 
 def register_bot(app: FastAPI):
     @app.on_event("startup")
