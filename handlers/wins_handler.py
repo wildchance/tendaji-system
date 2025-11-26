@@ -8,10 +8,8 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 async def handle_wins(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         response = requests.get(f"{API_BASE_URL}/history/wins")
-        data = response.json()
-
-        await update.message.reply_text(
-            f"🏆 Wins: {data.get('wins', 0)}\n❌ Losses: {data.get('losses', 0)}"
-        )
+        msg = f"🏆 Total Wins: {response.json().get('wins', 'N/A')}"
     except Exception as e:
-        await update.message.reply_text(f"Error: {e}")
+        msg = f"❌ Error fetching wins: {e}"
+
+    await update.message.reply_text(msg)
