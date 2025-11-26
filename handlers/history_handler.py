@@ -1,34 +1,26 @@
-from fastapi import APIRouter, FastAPI
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
-from handlers.start_handler import start
-from handlers.history_handler import handle_history
-import asyncio
+import requests
 import os
+from telegram import Update
+from telegram.ext import ContextTypes
 
-router = APIRouter()
+API_BASE_URL = os.getenv("API_BASE_URL", "https://wildchance-system-production.up.railway.app")
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+async def handle_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        response = requests.get(f"{API_BASE_URL}/history/trades", timeout=5)
 
-application = ApplicationBuilder().token(BOT_TOKEN).build()
+        if response.status_code == 200:
+            trades = response.json()
 
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("history", handle_history))
+            if not trades:
+                await update.message.reply_text("📭 No history found.")
+            else:
+                msg = "📊 *Recent Trades:*\n\n"
+                for trade in trades[:5]:
+                    msg += f"🔹 {trade['pair']} | {trade['action']} | Lot {trade['lot_size']} | @ {trade['price']}\n"
+                await update.message.reply_text(msg)
+        else:
+            await update.message.reply_text("⚠ API Error getting trade history.")
 
-async def echo(update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message:
-        await update.message.reply_text(f"You said: {update.message.text}")
-
-application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
-
-async def start_telegram_bot():
-    print("🚀 Telegram bot is starting...")
-    await application.initialize()
-    await application.start()
-    await application.run_polling()
-
-
-def register_bot(app: FastAPI):
-    @app.on_event("startup")
-    async def startup_event():
-        asyncio.create_task(start_telegram_bot())
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error: {str(e)}")
