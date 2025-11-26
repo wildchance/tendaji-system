@@ -1,26 +1,22 @@
-import requests
-import os
 from telegram import Update
 from telegram.ext import ContextTypes
+import requests
+import os
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://wildchance-system-production.up.railway.app")
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 async def handle_history(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send last 10 trades to user"""
     try:
-        response = requests.get(f"{API_BASE_URL}/history/trades", timeout=5)
+        response = requests.get(f"{API_BASE_URL}/history/trades")
+        trades = response.json()
 
-        if response.status_code == 200:
-            trades = response.json()
+        if not trades:
+            await update.message.reply_text("No trade history available.")
+            return
 
-            if not trades:
-                await update.message.reply_text("📭 No history found.")
-            else:
-                msg = "📊 *Recent Trades:*\n\n"
-                for trade in trades[:5]:
-                    msg += f"🔹 {trade['pair']} | {trade['action']} | Lot {trade['lot_size']} | @ {trade['price']}\n"
-                await update.message.reply_text(msg)
-        else:
-            await update.message.reply_text("⚠ API Error getting trade history.")
+        msg = "\n".join([f"{t['pair']} | {t['action']} | {t['price']}" for t in trades[:10]])
+        await update.message.reply_text(f"📈 Trade History:\n{msg}")
 
     except Exception as e:
-        await update.message.reply_text(f"❌ Error: {str(e)}")
+        await update.message.reply_text(f"⚠️ Error fetching history: {e}")
