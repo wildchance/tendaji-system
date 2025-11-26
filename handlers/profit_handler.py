@@ -1,18 +1,15 @@
-import requests
 from telegram import Update
 from telegram.ext import ContextTypes
+import requests
+import os
 
-API_URL = "http://127.0.0.1:8000/stats/profit"
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 async def handle_profit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        response = requests.get(API_URL)
+        response = requests.get(f"{API_BASE_URL}/history/profit")
         data = response.json()
-        
-        profit = data.get('profit', 0)
-        emoji = "💰" if profit >= 0 else "📉"
-        
-        await update.message.reply_text(f"{emoji} **Total Profit:** ${profit:.2f} USD")
-        
+
+        await update.message.reply_text(f"💰 Total Profit: {data.get('profit', 0)} USD")
     except Exception as e:
-        await update.message.reply_text(f"❌ Error: {str(e)}")
+        await update.message.reply_text(f"Error: {e}")
