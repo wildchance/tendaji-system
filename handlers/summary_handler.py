@@ -5,13 +5,19 @@ import os
 
 API_BASE_URL = os.getenv("API_BASE_URL")
 
-async def handle_wins(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        response = requests.get(f"{API_BASE_URL}/history/wins")
+        response = requests.get(f"{API_BASE_URL}/history/summary")
         data = response.json()
-
-        await update.message.reply_text(
-            f"🏆 Wins: {data.get('wins', 0)}\n❌ Losses: {data.get('losses', 0)}"
+        
+        msg = (
+            "📊 Trade Summary:\n"
+            f"Total Trades: {data.get('total_trades', 'N/A')}\n"
+            f"Wins: {data.get('wins', 'N/A')}\n"
+            f"Losses: {data.get('losses', 'N/A')}\n"
+            f"Profit: {data.get('profit', 'N/A')}\n"
         )
     except Exception as e:
-        await update.message.reply_text(f"Error: {e}")
+        msg = f"❌ Error fetching summary: {e}"
+
+    await update.message.reply_text(msg)
