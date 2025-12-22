@@ -1,41 +1,48 @@
 import os
-import asyncio
+from dotenv import load_dotenv
 from telegram.ext import (
-    ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters,
 )
+
+load_dotenv()
+
 from handlers.start_handler import start
 from handlers.history_handler import handle_history
-from handlers.last5_handler import handle_last5
 from handlers.profit_handler import handle_profit
+from handlers.last5_handler import handle_last5
 from handlers.wins_handler import handle_wins
 from handlers.summary_handler import handle_summary
 from handlers.admin_handler import handle_admin
 
-API_BASE_URL = "https://wildchance-system-production.up.railway.app"
+
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-async def main():
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+def main():
+    print("🚀 Starting Telegram bot...")
 
-    # Register Commands
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("history", handle_history))
-    application.add_handler(CommandHandler("last5", handle_last5))
-    application.add_handler(CommandHandler("profit", handle_profit))
-    application.add_handler(CommandHandler("wins", handle_wins))
-    application.add_handler(CommandHandler("summary", handle_summary))
-    application.add_handler(CommandHandler("admin", handle_admin))
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    async def echo(update, context):
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("history", handle_history))
+    app.add_handler(CommandHandler("profit", handle_profit))
+    app.add_handler(CommandHandler("last5", handle_last5))
+    app.add_handler(CommandHandler("wins", handle_wins))
+    app.add_handler(CommandHandler("summary", handle_summary))
+    app.add_handler(CommandHandler("admin", handle_admin))
+
+    async def echo(update, context: ContextTypes.DEFAULT_TYPE):
         if update.message:
-            await update.message.reply_text(f"You said: {update.message.text}")
+            await update.message.reply_text(update.message.text)
 
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    print("🤖 Telegram Bot is now running 24/7 on PythonAnywhere!")
-    await application.initialize()
-    await application.start()
-    await application.run_polling()
+    print("🤖 Bot running. Press CTRL+C to stop.")
+    app.run_polling()
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
